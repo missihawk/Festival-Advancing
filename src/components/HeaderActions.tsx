@@ -33,8 +33,8 @@ export default function HeaderActions() {
 
   // --- Stage form state
   const [stageName, setStageName] = useState("");
-  const [stageOrder, setStageOrder] = useState<string>("100");
-  const [stageColor, setStageColor] = useState<string>("");
+  const [stageOrder, setStageOrder] = useState<string>("20");
+  const [stageColor, setStageColor] = useState<string>("#2563eb");
 
   useEffect(() => {
     // preload stages voor de Act-modal
@@ -48,8 +48,8 @@ export default function HeaderActions() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: actName,
-        date: showTime || new Date().toISOString(), // je Act model heet 'date' in jouw eerdere demo; vervang evt. door show_time op Act
-        // Voor je echte schema: stuur show_time en (optioneel) stageId naar een dedicated endpoint
+        show_time: showTime || null,
+        stageId: stageId ? Number(stageId) : null,
       }),
     });
     setOpenAct(false);
@@ -65,12 +65,12 @@ export default function HeaderActions() {
       body: JSON.stringify({
         name: stageName,
         order: Number(stageOrder),
-        color: stageColor || null,
+        color: stageColor,
       }),
     });
     setOpenStage(false);
-    setStageName(""); setStageOrder("100"); setStageColor("");
-    // refresh ook de stages in de Act-modal
+    setStageName(""); setStageOrder("10");
+    // color laten staan of resetten, jouw keuze
     fetch("/api/stages").then(r => r.json()).then(setStages);
     router.refresh();
   }
@@ -103,21 +103,23 @@ export default function HeaderActions() {
               <Input id="act-name" value={actName} onChange={(e) => setActName(e.target.value)} required />
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="show-time">Show time</Label>
-              <Input id="show-time" type="datetime-local" value={showTime} onChange={(e) => setShowTime(e.target.value)} />
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Stage (optional)</Label>
-              <Select value={stageId} onValueChange={setStageId}>
-                <SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger>
-                <SelectContent>
-                  {stages.map(s => (
-                    <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* showtime + stage naast elkaar */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="show-time">Show time</Label>
+                <Input id="show-time" type="datetime-local" value={showTime} onChange={(e) => setShowTime(e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>Stage</Label>
+                <Select value={stageId} onValueChange={setStageId}>
+                  <SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger>
+                  <SelectContent>
+                    {stages.map(s => (
+                      <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="flex justify-end">
@@ -132,7 +134,7 @@ export default function HeaderActions() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add stage</DialogTitle>
-            <DialogDescription>Define name, order and optional color.</DialogDescription>
+            <DialogDescription>Define name, sort order and optional color.</DialogDescription>
           </DialogHeader>
           <form onSubmit={createStage} className="space-y-4">
             <div className="grid gap-2">
@@ -140,14 +142,21 @@ export default function HeaderActions() {
               <Input id="stage-name" value={stageName} onChange={(e) => setStageName(e.target.value)} required />
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="stage-order">Order</Label>
-              <Input id="stage-order" type="number" value={stageOrder} onChange={(e) => setStageOrder(e.target.value)} />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="stage-color">Color (hex or name, optional)</Label>
-              <Input id="stage-color" placeholder="#2563eb" value={stageColor} onChange={(e) => setStageColor(e.target.value)} />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="stage-order">Sort order</Label>
+                <Input id="stage-order" type="number" value={stageOrder} onChange={(e) => setStageOrder(e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="stage-color">Color</Label>
+                <input
+                  id="stage-color"
+                  type="color"
+                  value={stageColor}
+                  onChange={(e) => setStageColor(e.target.value)}
+                  className="h-10 w-full border rounded"
+                />
+              </div>
             </div>
 
             <div className="flex justify-end">
