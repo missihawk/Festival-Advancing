@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "src/app/globals.css": "tailwindcss"
+  },
+  "css.lint.unknownAtRules": "ignore"
+}
