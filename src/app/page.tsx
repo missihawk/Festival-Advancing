@@ -28,7 +28,16 @@ export default function Home() {
   }, []);
 
   const fmt = (iso: string | null) =>
-    iso ? new Date(iso).toLocaleString() : "—";
+    iso
+      ? new Date(iso).toLocaleString("nl-NL", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+      : "—";
 
   return (
     <main className="p-6 max-w-4xl mx-auto space-y-6">
