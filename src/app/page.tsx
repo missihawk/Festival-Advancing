@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import HeaderActions from "@/components/HeaderActions";
 import Link from "next/link";
+import { format } from "date-fns";
+import { nl } from "date-fns/locale";
 
 type Act = {
   id: number;
@@ -28,17 +30,8 @@ export default function Home() {
     load();
   }, []);
 
-  const fmt = (iso: string | null) =>
-    iso
-      ? new Date(iso).toLocaleString("nl-NL", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-      : "—";
+const fmt = (iso: string | null) =>
+  iso ? format(new Date(iso), "dd-MM-yyyy HH:mm", { locale: nl }) : "—";
 
   return (
     <main className="p-6 max-w-4xl mx-auto space-y-6">

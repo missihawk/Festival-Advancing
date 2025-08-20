@@ -2,16 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import DateTimeField from "@/components/DateTimeField";
 
 type Stage = { id: number; name: string };
 type Act = { id: number; name: string; show_time: string | null; stageId: number | null };
-
-function toLocalInputValue(iso: string) {
-  const d = new Date(iso);
-  const off = d.getTimezoneOffset();
-  const local = new Date(d.getTime() - off * 60000);
-  return local.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
-}
 
 export default function ActDetail() {
   const { id: idParam } = useParams<{ id: string }>();
@@ -21,7 +15,7 @@ export default function ActDetail() {
   const [act, setAct] = useState<Act | null>(null);
   const [stages, setStages] = useState<Stage[]>([]);
   const [name, setName] = useState("");
-  const [showTime, setShowTime] = useState("");
+  const [showTime, setShowTime] = useState<string | null>(null);
   const [stageId, setStageId] = useState<string>("");
 
   useEffect(() => {
@@ -47,7 +41,7 @@ export default function ActDetail() {
       setStages(s);
       setName(a.name ?? "");
       setStageId(a.stageId != null ? String(a.stageId) : "");
-      setShowTime(a.show_time ? toLocalInputValue(a.show_time) : "");
+      setShowTime(a.show_time ?? null);
     })();
   }, [id]);
 
@@ -58,7 +52,7 @@ export default function ActDetail() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name,
-        show_time: showTime || null,
+        show_time: showTime,
         stageId: stageId ? Number(stageId) : null,
       }),
     });
@@ -85,12 +79,7 @@ export default function ActDetail() {
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-2">
             <label className="text-sm font-medium">Show time</label>
-            <input
-              type="datetime-local"
-              className="border rounded px-2 py-1"
-              value={showTime}
-              onChange={(e) => setShowTime(e.target.value)}
-            />
+            <DateTimeField value={showTime} onChange={setShowTime} />
           </div>
           <div className="grid gap-2">
             <label className="text-sm font-medium">Stage</label>

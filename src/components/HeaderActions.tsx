@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select";
+import DateTimeField from "@/components/DateTimeField";
 
 type Stage = { id: number; name: string };
 
@@ -27,7 +28,7 @@ export default function HeaderActions() {
 
   // --- Act form state
   const [actName, setActName] = useState("");
-  const [showTime, setShowTime] = useState("");            // datetime-local string
+  const [showTime, setShowTime] = useState<string | null>(null);
   const [stageId, setStageId] = useState<string>("");      // "" = none
   const [stages, setStages] = useState<Stage[]>([]);
 
@@ -48,12 +49,12 @@ export default function HeaderActions() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: actName,
-        show_time: showTime || null,
+        show_time: showTime,
         stageId: stageId ? Number(stageId) : null,
       }),
     });
     setOpenAct(false);
-    setActName(""); setShowTime(""); setStageId("");
+    setActName(""); setShowTime(null); setStageId("");
     router.refresh();
   }
 
@@ -107,7 +108,7 @@ export default function HeaderActions() {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="show-time">Show time</Label>
-                <Input id="show-time" type="datetime-local" value={showTime} onChange={(e) => setShowTime(e.target.value)} />
+                <DateTimeField value={showTime} onChange={setShowTime} />
               </div>
               <div className="grid gap-2">
                 <Label>Stage</Label>
