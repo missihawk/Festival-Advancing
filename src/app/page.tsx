@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import HeaderActions from "@/components/HeaderActions";
+import Link from "next/link";
 
 type Act = {
   id: number;
@@ -49,10 +50,12 @@ export default function Home() {
       <ul className="space-y-2">
         {acts.map((a) => (
           <li key={a.id} className="border rounded p-3 bg-white shadow-sm">
-            <div className="font-medium">{a.name}</div>
-            <div className="text-sm text-gray-700">
-              Showtime: {fmt(a.show_time)}{a.stage?.name ? ` • ${a.stage.name}` : ""}
-            </div>
+            <Link href={`/acts/${a.id}`} className="block">
+              <div className="font-medium">{a.name}</div>
+              <div className="text-sm text-gray-700">
+                Showtime: {fmt(a.show_time)}{a.stage?.name ? ` • ${a.stage.name}` : ""}
+              </div>
+            </Link>
           </li>
         ))}
         {acts.length === 0 && (
