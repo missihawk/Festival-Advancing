@@ -54,7 +54,6 @@ model Stage {
 model Act {
   id    Int      @id @default(autoincrement())
   name  String
-  date  DateTime
 
   // People on the festival side (free text for now)
   festival_producer String?  // producent
