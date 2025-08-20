@@ -13,8 +13,88 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Types for time slots. Keys are code-friendly; map to pretty labels in the UI.
+enum TimeSlotType {
+  GET_IN
+  SHOWTIME
+  SOUNDCHECK
+  CREW_GET_IN
+  BAND_GET_IN
+  TRUCK_GET_IN
+  LINECHECK
+  CHANGEOVER
+  SET_UP
+  SET_UP_BACKSTAGE
+  BREAKFAST
+  LUNCH
+  MEET_AND_GREET
+  INTERVIEW
+  DINNER
+  OTHER
+}
+
+model Stage {
+  id     Int    @id @default(autoincrement())
+  name   String @unique          // e.g. "Main", "Zelt", "Amigo"
+
+  order  Int    @default(100)    // UI sorting
+  color  String?                 // optional UI badge color
+
+  // Simple audit fields
+  createdBy         String?
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  slots  ActTimeSlot[]
+  acts   Act[]   @relation("ActAnchorStage")
+}
+
 model Act {
   id    Int      @id @default(autoincrement())
   name  String
   date  DateTime
+
+  // People on the festival side (free text for now)
+  festival_producer String?  // producent
+  festival_booker   String?  // programmeur
+
+  // Anchor to the earliest SHOWTIME of this act and the main stage
+  show_time         DateTime?
+  stageId           Int?
+  stage             Stage?   @relation("ActAnchorStage", fields: [stageId], references: [id])
+
+  // Simple audit fields
+  createdBy         String?
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  timeSlots         ActTimeSlot[]
+
+  @@index([show_time])
+}
+
+model ActTimeSlot {
+  id        Int           @id @default(autoincrement())
+  actId     Int
+  act       Act           @relation(fields: [actId], references: [id], onDelete: Cascade)
+
+  type      TimeSlotType
+  start     DateTime
+  end       DateTime?
+  stageId   Int?
+  stage     Stage?        @relation(fields: [stageId], references: [id])
+  notes     String?
+
+  // Simple audit fields
+  createdBy         String?
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([actId, start])
+  @@index([type])
 }
